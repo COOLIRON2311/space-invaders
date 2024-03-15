@@ -1,13 +1,16 @@
 export default class InputHandler {
+    /** @type {Object.<string, boolean>} */ #down;
+    /** @type {Object.<string, boolean>} */ #pressed;
+
     constructor() {
-        this.down = {};
-        this.pressed = {};
-        document.addEventListener("keydown", e => {
-            this.down[e.code] = true;
+        this.#down = {};
+        this.#pressed = {};
+        document.addEventListener('keydown', e => {
+            this.#down[e.code] = true;
         });
-        document.addEventListener("keyup", e => {
-            delete this.down[e.code];
-            delete this.pressed[e.code];
+        document.addEventListener('keyup', e => {
+            delete this.#down[e.code];
+            delete this.#pressed[e.code];
         });
     }
 
@@ -17,7 +20,7 @@ export default class InputHandler {
      * @return {boolean} the result from check
      */
     isDown(code) {
-        return this.down[code];
+        return this.#down[code];
     }
 
     /**
@@ -28,10 +31,12 @@ export default class InputHandler {
     isPressed(code) {
         // if key is registered as pressed return false else if
         // key down for first time return true else return false
-        if (this.pressed[code]) {
+        if (this.#pressed[code]) {
             return false;
-        } else if (this.down[code]) {
-            return this.pressed[code] = true;
+        }
+
+        else if (this.#down[code]) {
+            return this.#pressed[code] = true;
         }
         return false;
     }
