@@ -17,7 +17,6 @@ export default class Alien {
     }
 
     /**
-     *
      * @param {CanvasRenderingContext2D} ctx
      * @param {number} time
      */
