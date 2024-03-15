@@ -1,4 +1,11 @@
 export default class Sprite {
+    /** @type {HTMLImageElement} */ img;
+    /** @type {number} */ x;
+    /** @type {number} */ y;
+    /** @type {number} */ w;
+    /** @type {number} */ h;
+
+
     /**
      * @param {HTMLImageElement} img
      * @param {number} x

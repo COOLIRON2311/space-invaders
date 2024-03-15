@@ -1,6 +1,8 @@
 import Sprite from './sprite';
 
 export default class Cannon {
+    /** @type {Sprite} */ #sprite;
+
     /**
      * @param {number} x
      * @param {number} y
@@ -9,7 +11,7 @@ export default class Cannon {
     constructor(x, y, sprite) {
         this.x = x;
         this.y = y;
-        this._sprite = sprite;
+        this.#sprite = sprite;
     }
 
     /**
@@ -18,9 +20,9 @@ export default class Cannon {
      */
     draw(ctx, time) {
         ctx.drawImage(
-            this._sprite.img,
-            this._sprite.x, this._sprite.y, this._sprite.w, this._sprite.h,
-            this.x, this.y, this._sprite.w, this._sprite.h
+            this.#sprite.img,
+            this.#sprite.x, this.#sprite.y, this.#sprite.w, this.#sprite.h,
+            this.x, this.y, this.#sprite.w, this.#sprite.h
         );
     }
 }

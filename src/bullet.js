@@ -1,4 +1,10 @@
 export default class Bullet {
+    /** @type {number} */ x;
+    /** @type {number} */ y;
+    /** @type {number} */ w;
+    /** @type {number} */ h;
+    /** @type {string} */ color;
+
     /**
      * @param {number} x
      * @param {number} y
