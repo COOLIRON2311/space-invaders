@@ -1,5 +1,5 @@
-import GameObject from './base/gameobject';
-import Sprite from './sprite';
+import GameObject from '../base/gameobject';
+import Sprite from '../base/sprite';
 
 export default class Cannon extends GameObject {
     /** @type {Sprite} */ #sprite;

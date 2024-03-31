@@ -1,13 +1,16 @@
 import { Howl } from 'howler';
-import Sprite from './sprite';
-import Cannon from './cannon';
-import Bullet from './bullet';
-import Alien from './alien';
+import Sprite from './base/sprite';
+import Cannon from './entities/cannon';
+import Bullet from './entities/bullet';
+import Alien from './entities/alien';
 import InputHandler from './input-handler';
+import Rectangle from './base/rectangle';
+import Timer from './timer';
 
 import assetPath from '../assets/invaders.png';
-import Rectangle from './base/rectangle';
 
+
+//#region Globals
 const screen = new Rectangle(0, 0, 600, window.innerHeight);
 const score_label = document.getElementById('score');
 const lives_label = document.getElementById('lives');
@@ -25,18 +28,27 @@ const sounds = {
     shoot: new Howl({ src: 'assets/sounds/shoot.mp3' }),
     move: new Howl({ src: 'assets/sounds/move.mp3' }),
     explosion: new Howl({ src: 'assets/sounds/explosion.mp3' }),
-    win: new Howl({src: 'assets/sounds/win.mp3'}),
-    lose: new Howl({src: 'assets/sounds/lose.mp3'})
+    win: new Howl({ src: 'assets/sounds/win.mp3' }),
+    lose: new Howl({ src: 'assets/sounds/lose.mp3' })
 };
 
 const gameState = {
     /** @type {Bullet[]} */ bullets: [],
     /** @type {Alien[]} */  aliens: [],
     /** @type {Cannon} */   cannon: null,
-    /** @type {number} */   lives: 3,
-    /** @type {number} */   score: 0
+    lives: 3,
+    score: 0,
+    direction: true,
+    started: false,
+    won: false,
+    lost: false
 };
+
+const timer = new Timer();
+
 const inputHandler = new InputHandler();
+
+//#endregion Globals
 
 /**
  * Load game assets
@@ -76,7 +88,11 @@ export function init(canvas) {
             }
 
             gameState.aliens.push(
-                new Alien(alienX, alienY, sprites.aliens[alienType])
+                new Alien(alienX, alienY,
+                    25,
+                    16,
+                    sprites.aliens[alienType]
+                )
             );
         }
     }
@@ -95,6 +111,12 @@ export function init(canvas) {
  * @param {CallableFunction} stopGame
  */
 export function update(time, stopGame) {
+    if (gameState.aliens.length === 0) {
+        gameWin();
+        stopGame();
+    }
+
+    //#region Handle user input
     if (inputHandler.isDown('KeyA') || inputHandler.isDown('ArrowLeft')) {
         if (gameState.cannon.x > screen.left)
             gameState.cannon.left();
@@ -106,11 +128,19 @@ export function update(time, stopGame) {
     }
 
     if (inputHandler.isPressed('Space')) {
-        const bulletX = gameState.cannon.x + 10;
-        const bulletY = gameState.cannon.y;
-        gameState.bullets.push(new Bullet(bulletX, bulletY, -8, 2, 6, '#fff'));
-        sounds.shoot.play();
+        gameState.started = true;
+        if (timer.playerShootsNow(time)) {
+            const bulletX = gameState.cannon.x + 10;
+            const bulletY = gameState.cannon.y;
+            gameState.bullets.push(new Bullet(bulletX, bulletY, -8, 2, 6, '#fff'));
+            sounds.shoot.play();
+        }
     }
+    //#endregion Handle user input
+
+    // Do not start the game until Space is pressed
+    if (!gameState.started)
+        return;
 
     //#region Handle bullets CD and screen bounds
     for (const bullet of gameState.bullets) {
@@ -134,16 +164,49 @@ export function update(time, stopGame) {
                 break; // kill only one alien
             }
         }
-        bullet.update(time);
-
     }
     gameState.bullets = gameState.bullets.filter(b => !b.hit);
     gameState.aliens = gameState.aliens.filter(a => !a.killed);
     //#endregion Handle bullets CD and screen bounds
 
-    if (gameState.aliens.length === 0) {
-        // TODO: call gameWin and break game loop
+    gameState.bullets.forEach(b => b.update(time));
+
+    //#region Move aliens
+    if (timer.alienMovesNow(time, gameState.aliens.length)) {
+        sounds.move.play();
+
+        if (gameState.direction) { // ->
+            let last = Number.MIN_VALUE;
+            gameState.aliens.forEach(a => {
+                a.right();
+                if (a.AABB.right > last)
+                    last = a.AABB.right + a.AABB.w;
+            });
+
+            if (screen.right <= last) {
+                gameState.direction = !gameState.direction;
+                gameState.aliens.forEach(a => {
+                    a.down();
+                });
+            }
+        }
+        else { // <-
+            let last = Number.MAX_VALUE;
+            gameState.aliens.forEach(a => {
+                a.left();
+                if (a.AABB.left < last)
+                    last = a.AABB.left - a.AABB.w;
+            });
+
+            if (last <= screen.left) {
+                gameState.direction = !gameState.direction;
+                gameState.aliens.forEach(a => {
+                    a.down();
+                });
+            }
+        }
     }
+    //#endregion Move aliens
 }
 
 /**
@@ -155,9 +218,25 @@ export function draw(canvas, time) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    screen.draw(ctx);
+
     gameState.aliens.forEach(a => a.draw(ctx, time));
     gameState.cannon.draw(ctx);
     gameState.bullets.forEach(b => b.draw(ctx));
+
+    if (gameState.won) {
+        ctx.font = '36pt serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 35);
+        ctx.fillText('You Win', canvas.width / 2, canvas.height / 2 + 35);
+    }
+
+    if (gameState.lost) {
+        ctx.font = '36pt serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 35);
+        ctx.fillText('You Lose', canvas.width / 2, canvas.height / 2 + 35);
+    }
 }
 
 function updateScore() {
@@ -169,6 +248,11 @@ function updateLives() {
 }
 
 function gameWin() {
-    if (!sounds.win.playing())
-        sounds.win.play();
+    gameState.won = true;
+    sounds.win.play();
+}
+
+function gameLose() {
+    gameState.lost = true;
+    sounds.lose.play();
 }

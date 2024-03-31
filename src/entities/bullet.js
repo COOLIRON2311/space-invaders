@@ -1,4 +1,4 @@
-import GameObject from './base/gameobject';
+import GameObject from '../base/gameobject';
 
 export default class Bullet extends GameObject{
     /** @type {number} */ x;

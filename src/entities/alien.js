@@ -1,23 +1,46 @@
-import GameObject from './base/gameobject';
-import Sprite from './sprite';
+import GameObject from '../base/gameobject';
+import Sprite from '../base/sprite';
 
 export default class Alien extends GameObject {
     /** @type {Sprite} */ #spriteA;
     /** @type {Sprite} */ #spriteB;
+    /** @type {number} */ x;
+    /** @type {number} */ y;
+    /** @type {number} */ vx;
+    /** @type {number} */ vy;
     /** @type {boolean} */ killed;
 
     /**
      * @param {number} x
      * @param {number} y
+     * @param {number} vx
+     * @param {number} vy
      * @param {Sprite[]} sprites
      */
-    constructor(x, y, [spriteA, spriteB]) {
+    constructor(x, y, vx, vy, [spriteA, spriteB]) {
         super(x, y, spriteA.w, spriteA.h);
         this.x = x;
         this.y = y;
+        this.vx = vx;
+        this.vy = vy;
         this.killed = false;
         this.#spriteA = spriteA;
         this.#spriteB = spriteB;
+    }
+
+    left() {
+        this.x -= this.vx;
+        this.AABB.x -= this.vx;
+    }
+
+    right() {
+        this.x += this.vx;
+        this.AABB.x += this.vx;
+    }
+
+    down() {
+        this.y += this.vy;
+        this.AABB.y += this.vy;
     }
 
     /**
