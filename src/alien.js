@@ -4,6 +4,7 @@ import Sprite from './sprite';
 export default class Alien extends GameObject {
     /** @type {Sprite} */ #spriteA;
     /** @type {Sprite} */ #spriteB;
+    /** @type {boolean} */ killed;
 
     /**
      * @param {number} x
@@ -14,6 +15,7 @@ export default class Alien extends GameObject {
         super(x, y, spriteA.w, spriteA.h);
         this.x = x;
         this.y = y;
+        this.killed = false;
         this.#spriteA = spriteA;
         this.#spriteB = spriteB;
     }
@@ -30,5 +32,6 @@ export default class Alien extends GameObject {
             sp.x, sp.y, sp.w, sp.h,
             this.x, this.y, sp.w, sp.h
         );
+        this.AABB.draw(ctx);
     }
 }

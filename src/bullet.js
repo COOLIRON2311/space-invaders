@@ -6,6 +6,7 @@ export default class Bullet extends GameObject{
     /** @type {number} */ w;
     /** @type {number} */ h;
     /** @type {string} */ color;
+    /** @type {boolean} */ hit;
 
     /**
      * @param {number} x
@@ -23,6 +24,7 @@ export default class Bullet extends GameObject{
         this.w = w;
         this.h = h;
         this.color = color;
+        this.hit = false;
     }
 
     /**
@@ -30,6 +32,7 @@ export default class Bullet extends GameObject{
      */
     update(time) {
         this.y += this.vy;
+        this.AABB.y += this.vy;
     }
 
     /**

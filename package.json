@@ -12,6 +12,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.0",
     "@babel/preset-env": "^7.24.0",
+    "@types/howler": "^2.2.11",
     "@types/jest": "^29.5.12",
     "core-js": "^3.36.0",
     "eslint": "^8.57.0",
@@ -22,5 +23,8 @@
     "coverageReporters": [
       "text"
     ]
+  },
+  "dependencies": {
+    "howler": "^2.2.4"
   }
 }
