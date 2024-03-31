@@ -1,6 +1,7 @@
+import GameObject from './base/gameobject';
 import Sprite from './sprite';
 
-export default class Cannon {
+export default class Cannon extends GameObject {
     /** @type {Sprite} */ #sprite;
 
     /**
@@ -9,6 +10,7 @@ export default class Cannon {
      * @param {Sprite} sprite
      */
     constructor(x, y, sprite) {
+        super(x, y, sprite.w, sprite.h);
         this.x = x;
         this.y = y;
         this.#sprite = sprite;
@@ -16,7 +18,7 @@ export default class Cannon {
 
     /**
      * @param {CanvasRenderingContext2D} ctx
-     * @param {number} time
+     * @param {number} [time]
      */
     draw(ctx, time) {
         ctx.drawImage(

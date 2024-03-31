@@ -1,4 +1,6 @@
-export default class Bullet {
+import GameObject from './base/gameobject';
+
+export default class Bullet extends GameObject{
     /** @type {number} */ x;
     /** @type {number} */ y;
     /** @type {number} */ w;
@@ -14,6 +16,7 @@ export default class Bullet {
      * @param {string} color
      */
     constructor(x, y, vy, w, h, color) {
+        super(x, y, w, h);
         this.x = x;
         this.y = y;
         this.vy = vy;

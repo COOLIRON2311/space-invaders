@@ -8,19 +8,28 @@ import assetPath from '../assets/invaders.png';
 
 /** @type {HTMLImageElement} */
 let assets;
+
 const sprites = {
-    aliens: [],
-    cannon: null,
-    bunker: null
+    /** @type {Sprite[][]} */ aliens: [],
+    /** @type {Sprite} */     cannon: null,
+    /** @type {Sprite} */     bunker: null
 };
+
+const sounds = {
+    shoot: null,
+    move: null,
+    explosion: null
+};
+
 const gameState = {
-    bullets: [],
-    aliens: [],
-    cannon: null,
+    /** @type {Bullet[]} */ bullets: [],
+    /** @type {Alien[]} */ aliens: [],
+    /** @type {Cannon} */ cannon: null,
 };
 const inputHandler = new InputHandler();
 
 /**
+ * Load game assets
  * @param {CallableFunction} onPreloadComplete
  */
 export function preload(onPreloadComplete) {
@@ -29,7 +38,7 @@ export function preload(onPreloadComplete) {
         sprites.cannon = new Sprite(assets, 62, 0, 22, 16);
         sprites.bunker = new Sprite(assets, 84, 8, 36, 24);
         sprites.aliens = [
-            [new Sprite(assets,  0, 0, 22, 16), new Sprite(assets,  0, 16, 22, 16)],
+            [new Sprite(assets, 0, 0, 22, 16), new Sprite(assets, 0, 16, 22, 16)],
             [new Sprite(assets, 22, 0, 16, 16), new Sprite(assets, 22, 16, 16, 16)],
             [new Sprite(assets, 38, 0, 24, 16), new Sprite(assets, 38, 16, 24, 16)]
         ];
@@ -40,16 +49,17 @@ export function preload(onPreloadComplete) {
 }
 
 /**
+ * Initialize game objects
  * @param {HTMLCanvasElement} canvas
  */
 export function init(canvas) {
     const alienTypes = [1, 0, 1, 2, 0, 2];
-    for (var i = 0, len = alienTypes.length; i < len; i++) {
-        for (var j = 0; j < 10; j++) {
+    for (let i = 0, len = alienTypes.length; i < len; i++) {
+        for (let j = 0; j < 10; j++) {
             const alienType = alienTypes[i];
 
-            let alienX = 30 + j*30;
-            let alienY = 30 + i*30;
+            let alienX = 30 + j * 30;
+            let alienY = 30 + i * 30;
 
             if (alienType === 1) {
                 alienX += 3; // (kostyl) aliens of this type is a bit thinner
@@ -68,16 +78,19 @@ export function init(canvas) {
 }
 
 /**
+ * Handle user input and update game state
  * @param {number} time
- * @param {*} stopGame
+ * @param {CallableFunction} stopGame
  */
 export function update(time, stopGame) {
-    if (inputHandler.isDown('ArrowLeft')) {
-        gameState.cannon.x -= 4;
+    if (inputHandler.isDown('KeyA')) {
+        if (gameState.cannon.x > 0)
+            gameState.cannon.x -= 4;
     }
 
-    if (inputHandler.isDown('ArrowRight')) {
-        gameState.cannon.x += 4;
+    if (inputHandler.isDown('KeyD')) {
+        if (gameState.cannon.x < 600 - gameState.cannon.AABB.w - 4)
+            gameState.cannon.x += 4;
     }
 
     if (inputHandler.isPressed('Space')) {
@@ -90,6 +103,7 @@ export function update(time, stopGame) {
 }
 
 /**
+ * Draw game scene
  * @param {HTMLCanvasElement} canvas
  * @param {DOMHighResTimeStamp} time
  */

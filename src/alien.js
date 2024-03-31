@@ -1,15 +1,17 @@
+import GameObject from './base/gameobject';
 import Sprite from './sprite';
 
-export default class Alien {
+export default class Alien extends GameObject {
     /** @type {Sprite} */ #spriteA;
     /** @type {Sprite} */ #spriteB;
 
     /**
      * @param {number} x
      * @param {number} y
-     * @param {*} param2
+     * @param {Sprite[]} sprites
      */
     constructor(x, y, [spriteA, spriteB]) {
+        super(x, y, spriteA.w, spriteA.h);
         this.x = x;
         this.y = y;
         this.#spriteA = spriteA;
