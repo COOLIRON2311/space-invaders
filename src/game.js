@@ -8,7 +8,7 @@ import InputHandler from './input-handler';
 import Rectangle from './base/rectangle';
 import Timer from './timer';
 
-import assetPath from '../assets/invaders.png';
+import assetPath from '../public/invaders.png';
 
 
 //#region Globals
@@ -26,15 +26,15 @@ const sprites = {
 };
 
 const sounds = {
-    shoot: new Howl({ src: 'assets/sounds/shoot.mp3' }),
-    move1: new Howl({ src: 'assets/sounds/move1.mp3' }),
-    move2: new Howl({ src: 'assets/sounds/move2.mp3' }),
-    move3: new Howl({ src: 'assets/sounds/move3.mp3' }),
-    move4: new Howl({ src: 'assets/sounds/move4.mp3' }),
-    explosion1: new Howl({ src: 'assets/sounds/explosion1.mp3' }),
-    explosion2: new Howl({ src: 'assets/sounds/explosion2.mp3' }),
-    win: new Howl({ src: 'assets/sounds/win.mp3' }),
-    lose: new Howl({ src: 'assets/sounds/lose.mp3' })
+    shoot: new Howl({ src: 'sounds/shoot.mp3' }),
+    move1: new Howl({ src: 'sounds/move1.mp3' }),
+    move2: new Howl({ src: 'sounds/move2.mp3' }),
+    move3: new Howl({ src: 'sounds/move3.mp3' }),
+    move4: new Howl({ src: 'sounds/move4.mp3' }),
+    explosion1: new Howl({ src: 'sounds/explosion1.mp3' }),
+    explosion2: new Howl({ src: 'sounds/explosion2.mp3' }),
+    win: new Howl({ src: 'sounds/win.mp3' }),
+    lose: new Howl({ src: 'sounds/lose.mp3' })
 };
 
 const gameState = {
@@ -169,7 +169,8 @@ export function update(time, stopGame) {
 
     handleAlienBullets();
 
-    // Cleanup gameState arrays
+    // Perform a Stalin sort on gameState arrays:
+    // every marked element goes to the gulag
     gameState.aliens = gameState.aliens.filter(a => !a.killed);
     gameState.player_bullets = gameState.player_bullets.filter(b => !b.hit);
     gameState.alien_bullets = gameState.alien_bullets.filter(b => !b.hit);
