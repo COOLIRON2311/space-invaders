@@ -1,7 +1,7 @@
-import GameObject from '../base/gameobject';
+import Entity from '../base/entity';
 import Sprite from '../base/sprite';
 
-export default class Alien extends GameObject {
+export default class Alien extends Entity {
     /** @type {Sprite} */ #spriteA;
     /** @type {Sprite} */ #spriteB;
     /** @type {number} */ x;

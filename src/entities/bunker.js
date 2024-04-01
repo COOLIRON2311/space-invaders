@@ -1,44 +1,38 @@
 import Entity from '../base/entity';
 import Sprite from '../base/sprite';
 
-export default class Cannon extends Entity {
+export default class Bunker extends Entity {
     /** @type {Sprite} */ #sprite;
-    /** @type {number} */ vx;
+    /** @type {number} */ x;
+    /** @type {number} */ y;
+    /** @type {number} */ hp;
+
 
     /**
      * @param {number} x
      * @param {number} y
-     * @param {number} vx
      * @param {Sprite} sprite
      */
-    constructor(x, y, vx, sprite) {
+    constructor(x, y, sprite) {
         super(x, y, sprite.w, sprite.h);
         this.x = x;
         this.y = y;
-        this.vx = vx;
         this.#sprite = sprite;
+        this.hp = 5;
     }
 
     /**
      * @param {CanvasRenderingContext2D} ctx
-     * @param {number} [time]
      */
-    draw(ctx, time) {
+    draw(ctx) {
         ctx.drawImage(
             this.#sprite.img,
-            this.#sprite.x, this.#sprite.y, this.#sprite.w, this.#sprite.h,
+            this.#sprite.x, this.#sprite.y,
+            this.#sprite.w, this.#sprite.h,
             this.x, this.y, this.#sprite.w, this.#sprite.h
         );
+
+        ctx.fillText(this.hp.toString(), this.x, this.y);
         this.AABB.draw(ctx);
-    }
-
-    left() {
-        this.x -= this.vx;
-        this.AABB.x -= this.vx;
-    }
-
-    right() {
-        this.x += this.vx;
-        this.AABB.x += this.vx;
     }
 }

@@ -1,6 +1,6 @@
 import Rectangle from './rectangle';
 
-export default class GameObject {
+export default class Entity {
     /** @type {Rectangle} Axis-Aligned Bounding Box */ AABB;
 
     /**

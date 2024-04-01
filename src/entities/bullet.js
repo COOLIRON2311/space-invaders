@@ -1,6 +1,6 @@
-import GameObject from '../base/gameobject';
+import Entity from '../base/entity';
 
-export default class Bullet extends GameObject{
+export default class Bullet extends Entity{
     /** @type {number} */ x;
     /** @type {number} */ y;
     /** @type {number} */ w;
