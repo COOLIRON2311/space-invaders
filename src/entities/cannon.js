@@ -29,7 +29,7 @@ export default class Cannon extends Entity {
             this.#sprite.x, this.#sprite.y, this.#sprite.w, this.#sprite.h,
             this.x, this.y, this.#sprite.w, this.#sprite.h
         );
-        this.AABB.draw(ctx);
+        // this.AABB.draw(ctx);
     }
 
     left() {

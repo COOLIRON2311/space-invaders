@@ -55,6 +55,6 @@ export default class Alien extends Entity {
             sp.x, sp.y, sp.w, sp.h,
             this.x, this.y, sp.w, sp.h
         );
-        this.AABB.draw(ctx);
+        // this.AABB.draw(ctx);
     }
 }

@@ -31,13 +31,15 @@ const sounds = {
     move2: new Howl({ src: 'assets/sounds/move2.mp3' }),
     move3: new Howl({ src: 'assets/sounds/move3.mp3' }),
     move4: new Howl({ src: 'assets/sounds/move4.mp3' }),
-    explosion: new Howl({ src: 'assets/sounds/explosion.mp3' }),
+    explosion1: new Howl({ src: 'assets/sounds/explosion1.mp3' }),
+    explosion2: new Howl({ src: 'assets/sounds/explosion2.mp3' }),
     win: new Howl({ src: 'assets/sounds/win.mp3' }),
     lose: new Howl({ src: 'assets/sounds/lose.mp3' })
 };
 
 const gameState = {
-    /** @type {Bullet[]} */ bullets: [],
+    /** @type {Bullet[]} */ player_bullets: [],
+    /** @type {Bullet[]} */ alien_bullets: [],
     /** @type {Bunker[]} */ bunkers: [],
     /** @type {Alien[]} */  aliens: [],
     /** @type {Cannon} */   cannon: null,
@@ -103,7 +105,6 @@ export function init(canvas) {
 
     //#region Bunkers
     for (let i = 0; i < 4; i++) {
-        // const bunkerX = 55 + i * 150;
         const bunkerX = 102 + i * 120;
         const bunkerY = canvas.height - 120;
 
@@ -111,23 +112,26 @@ export function init(canvas) {
     }
     //#endregion Bunkers
 
-    gameState.cannon = new Cannon(
-        100,
-        canvas.height - 50,
-        4,
-        sprites.cannon
-    );
+    gameState.cannon = new Cannon(100, canvas.height - 50, 4, sprites.cannon);
 }
 
 /**
  * Handle user input and update game state
  * @param {number} time
- * @param {CallableFunction} stopGame
+ * @param {CallableFunction} stopGame StopGame.ru
  */
 export function update(time, stopGame) {
+    // Won if player killed all aliens
     if (gameState.aliens.length === 0) {
         gameState.won = true;
         sounds.win.play();
+        stopGame();
+    }
+
+    // Lost if all cannons were destroyed
+    if (gameState.cannons === 0) {
+        gameState.lost = true;
+        sounds.lose.play();
         stopGame();
     }
 
@@ -147,28 +151,40 @@ export function update(time, stopGame) {
         if (timer.playerShootsNow(time)) {
             const bulletX = gameState.cannon.x + 10;
             const bulletY = gameState.cannon.y;
-            gameState.bullets.push(new Bullet(bulletX, bulletY, -8, 2, 6, '#fff'));
+            gameState.player_bullets.push(new Bullet(bulletX, bulletY, -8, 2, 6, '#fff'));
             sounds.shoot.play();
         }
     }
     //#endregion Handle user input
 
-    // Do not start the game until Space is pressed
+    // Do not start the game until Space key is pressed
     if (!gameState.started)
         return;
 
     handlePlayerBullets();
 
+    if (timer.alienShootsNow(time)) {
+        randomAlienShoots();
+    }
+
+    handleAlienBullets();
+
     // Cleanup gameState arrays
     gameState.aliens = gameState.aliens.filter(a => !a.killed);
-    gameState.bullets = gameState.bullets.filter(b => !b.hit);
+    gameState.player_bullets = gameState.player_bullets.filter(b => !b.hit);
+    gameState.alien_bullets = gameState.alien_bullets.filter(b => !b.hit);
     gameState.bunkers = gameState.bunkers.filter(b => b.hp > 0);
 
-    gameState.bullets.forEach(b => b.update(time));
+    // Update player and enemy bullets
+    gameState.player_bullets.forEach(b => b.update(time));
+    gameState.alien_bullets.forEach(b => b.update(time));
 
-    //#region Move aliens
-    moveAliens(time);
-    //#endregion Move aliens
+    // Move aliens and check whether they have landed
+    if (moveAliens(time) > screen.bottom - 124) {
+        gameState.lost = true;
+        sounds.lose.play();
+        stopGame();
+    }
 }
 
 /**
@@ -180,12 +196,18 @@ export function draw(canvas, time) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    screen.draw(ctx);
+    // screen.draw(ctx);
+    // Draw screen borders
+    ctx.strokeStyle = 'aliceblue';
+    ctx.beginPath();
+    ctx.rect(screen.x, screen.y, screen.w, screen.h);
+    ctx.stroke();
 
     gameState.aliens.forEach(a => a.draw(ctx, time));
     gameState.bunkers.forEach(b => b.draw(ctx));
     gameState.cannon.draw(ctx);
-    gameState.bullets.forEach(b => b.draw(ctx));
+    gameState.player_bullets.forEach(b => b.draw(ctx));
+    gameState.alien_bullets.forEach(b => b.draw(ctx));
 
     if (gameState.won) {
         ctx.font = '36pt serif';
@@ -202,23 +224,16 @@ export function draw(canvas, time) {
     }
 }
 
-function updateScore() {
-    score_label.innerText = `Score: ${gameState.score}`;
-}
-
-function updateLives() {
-    cannons_label.innerText = `Cannons: ${gameState.cannons}`;
-}
-
 function handlePlayerBullets() {
-    for (const bullet of gameState.bullets) {
+    bullet_loop:
+    for (const bullet of gameState.player_bullets) {
         // Handle bullets on the screen
         if (!screen.contains(bullet.AABB)) {
             bullet.hit = true;
             continue;
         }
 
-        // Handle bullets CD with aliens
+        // Handle player bullets CD with aliens
         for (let i = gameState.aliens.length - 1; i >= 0; i--) {
             const alien = gameState.aliens[i];
 
@@ -227,28 +242,64 @@ function handlePlayerBullets() {
                 bullet.hit = true;
 
                 gameState.score++;
-                updateScore();
+                // Update score
+                score_label.innerText = `Score: ${gameState.score}`;
 
-                sounds.explosion.play();
-                break; // kill only one alien
+                sounds.explosion1.play();
+                continue bullet_loop; // kill only one alien
             }
         }
 
-        // Handle bullets CD with bunkers
+        // Handle player bullets CD with bunkers
         for (const bunker of gameState.bunkers) {
             if (bullet.AABB.intersects(bunker.AABB)) {
                 bunker.hp--;
                 bullet.hit = true;
-                break;
+                continue bullet_loop;
             }
         }
     }
 }
 
+function handleAlienBullets() {
+    bullet_loop:
+    for (const bullet of gameState.alien_bullets) {
+        // Handle bullets on the screen
+        if (!screen.contains(bullet.AABB)) {
+            bullet.hit = true;
+            continue;
+        }
+
+        // Handle alien bullets CD player
+        if (bullet.AABB.intersects(gameState.cannon.AABB)) {
+            bullet.hit = true;
+            gameState.cannons--;
+            // Update cannons
+            cannons_label.innerText = `Cannons: ${gameState.cannons}`;
+
+            sounds.explosion2.play();
+            continue bullet_loop;
+        }
+
+        // Handle alien bullets CD with bunkers
+        for (const bunker of gameState.bunkers) {
+            if (bullet.AABB.intersects(bunker.AABB)) {
+                bullet.hit = true;
+                bunker.hp--;
+
+                continue bullet_loop;
+            }
+        }
+
+    }
+}
+
 /**
  * @param {number} time
+ * @returns {number} lowest alien position
  */
 function moveAliens(time) {
+    let lowest = Number.MIN_VALUE;
     if (timer.alienMovesNow(time, gameState.aliens.length)) {
         switch (gameState.move) {
             case 0:
@@ -264,7 +315,6 @@ function moveAliens(time) {
                 sounds.move4.play();
                 break;
         }
-
         gameState.move = (gameState.move + 1) % 4;
 
         if (gameState.direction) { // ->
@@ -279,6 +329,8 @@ function moveAliens(time) {
                 gameState.direction = !gameState.direction;
                 gameState.aliens.forEach(a => {
                     a.down();
+                    if (a.y > lowest)
+                        lowest = a.y;
                 });
             }
         }
@@ -294,8 +346,24 @@ function moveAliens(time) {
                 gameState.direction = !gameState.direction;
                 gameState.aliens.forEach(a => {
                     a.down();
+                    if (a.y > lowest)
+                        lowest = a.y;
                 });
             }
         }
     }
+    return lowest;
+}
+
+/**
+ * IMMA FIRIN MAH' LAZER!
+ */
+function randomAlienShoots() {
+    const maxY = Math.max(...gameState.aliens.map(a => a.y));
+    const bottom = gameState.aliens.filter(a => a.y === maxY);
+    const shooter = bottom[Math.floor(Math.random() * bottom.length)];
+
+    const bulletX = shooter.x + shooter.AABB.w / 2;
+    const bulletY = shooter.AABB.bottom;
+    gameState.alien_bullets.push(new Bullet(bulletX, bulletY, 4, 2, 6, '#fff'));
 }

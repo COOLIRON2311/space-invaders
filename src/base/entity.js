@@ -9,6 +9,7 @@ export default class Entity {
      * @param {number} w
      * @param {number} h
      */
+
     constructor(x, y, w, h) {
         this.AABB = new Rectangle(x, y, w, h);
     }

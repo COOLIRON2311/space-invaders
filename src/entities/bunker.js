@@ -18,7 +18,7 @@ export default class Bunker extends Entity {
         this.x = x;
         this.y = y;
         this.#sprite = sprite;
-        this.hp = 5;
+        this.hp = 10;
     }
 
     /**
@@ -33,6 +33,6 @@ export default class Bunker extends Entity {
         );
 
         ctx.fillText(this.hp.toString(), this.x, this.y);
-        this.AABB.draw(ctx);
+        // this.AABB.draw(ctx);
     }
 }

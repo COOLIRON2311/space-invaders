@@ -74,7 +74,7 @@ export default class Rectangle {
      * @param {CanvasRenderingContext2D} ctx
      */
     draw(ctx, ) {
-        const style = ctx.fillStyle;
+        const style = ctx.strokeStyle;
         ctx.strokeStyle = '#ff0000';
         ctx.beginPath();
         ctx.rect(this.x, this.y, this.w, this.h);
