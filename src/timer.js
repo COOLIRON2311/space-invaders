@@ -2,19 +2,20 @@ export default class Timer {
     /** @type {number} */ #alien_moves;
     /** @type {number} */ #player_shoots;
     /** @type {number} */ #alien_shoots;
+    /** @type {number} */ alien_number;
 
     constructor() {
         this.#alien_moves = 0;
         this.#player_shoots = 0;
         this.#alien_shoots = 0;
+        this.alien_number = 64;
     }
 
     /**
      * @param {number} time
-     * @param {number} number_of_aliens
      */
-    alienMovesNow(time, number_of_aliens) {
-        const second = Math.round(time / ((number_of_aliens + 4) / 60 * 1000));
+    alienMovesNow(time) {
+        const second = Math.round(time / (this.alien_number / 60 * 1000));
         if (second > this.#alien_moves) {
             this.#alien_moves = second + 1;
             return true;

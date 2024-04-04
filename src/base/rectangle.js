@@ -69,6 +69,10 @@ export default class Rectangle {
             && (rect.y < this.y + this.w);
     }
 
+    copy() {
+        return new Rectangle(this.x, this.y, this.w, this.h);
+    }
+
     /**
      * Draw `this` rectangle using provided `ctx`
      * @param {CanvasRenderingContext2D} ctx

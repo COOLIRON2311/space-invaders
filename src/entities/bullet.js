@@ -1,6 +1,7 @@
 import Entity from '../base/entity';
+import Alien from './alien';
 
-export default class Bullet extends Entity{
+export default class Bullet extends Entity {
     /** @type {number} */ x;
     /** @type {number} */ y;
     /** @type {number} */ w;
@@ -36,10 +37,23 @@ export default class Bullet extends Entity{
     }
 
     /**
+     * Special alien collision detection
+     * @param {Alien} alien
+     */
+    alienCD(alien) {
+        const b = this.AABB.copy();
+        b.h += alien.AABB.h; // accounts for alien height
+        return b.intersects(alien.AABB);
+    }
+
+    /**
      * @param {CanvasRenderingContext2D} ctx
      */
     draw(ctx) {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.w, this.h);
+        // const bb = this.AABB.copy();
+        // bb.h += 16;
+        // bb.draw(ctx);
     }
 }

@@ -8,8 +8,6 @@ import InputHandler from './input-handler';
 import Rectangle from './base/rectangle';
 import Timer from './timer';
 
-import assetPath from '../public/invaders.png';
-
 
 //#region Globals
 const screen = new Rectangle(0, 0, 600, window.innerHeight);
@@ -49,11 +47,10 @@ const gameState = {
     move: 0,
     started: false,
     won: false,
-    lost: false,
+    lost: false
 };
 
 const timer = new Timer();
-
 const inputHandler = new InputHandler();
 
 //#endregion Globals
@@ -75,7 +72,7 @@ export function preload(onPreloadComplete) {
 
         onPreloadComplete();
     });
-    assets.src = assetPath;
+    assets.src = 'invaders.png';
 }
 
 /**
@@ -238,9 +235,10 @@ function handlePlayerBullets() {
         for (let i = gameState.aliens.length - 1; i >= 0; i--) {
             const alien = gameState.aliens[i];
 
-            if (bullet.AABB.intersects(alien.AABB)) {
+            if (bullet.alienCD(alien)) {
                 alien.killed = true;
                 bullet.hit = true;
+                timer.alien_number--;
 
                 gameState.score++;
                 // Update score
@@ -301,7 +299,7 @@ function handleAlienBullets() {
  */
 function moveAliens(time) {
     let lowest = Number.MIN_VALUE;
-    if (timer.alienMovesNow(time, gameState.aliens.length)) {
+    if (timer.alienMovesNow(time)) {
         switch (gameState.move) {
             case 0:
                 sounds.move1.play();
