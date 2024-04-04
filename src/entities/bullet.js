@@ -41,9 +41,10 @@ export default class Bullet extends Entity {
      * @param {Alien} alien
      */
     alienCD(alien) {
-        const b = this.AABB.copy();
-        b.h += alien.AABB.h; // accounts for alien height
-        return b.intersects(alien.AABB);
+        this.h += alien.AABB.h; // account for alien height
+        const r = this.AABB.intersects(alien.AABB);
+        this.h -= alien.AABB.h;
+        return r;
     }
 
     /**
