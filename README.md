@@ -31,5 +31,5 @@ cd ./dist
 - [x] Обработать ситуации победы и поражения (сколько есть запасных пушек)
 Возможный вариант реализации:
 
-![screenshot](assets/legacy.png)
+![screenshot](public/legacy.png)
 
